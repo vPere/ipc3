@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         err_sys("Read psem1");
         }
 
-	/*while (sem_value > 0) {
+	/*while (sem_value > 1) {
 		sem_wait(psem1);
 		sem_value--;
 	}*/
@@ -71,7 +71,9 @@ int main(int argc, char *argv[]) {
 			scanf("%s", msg);
 			strcat(msg, "\n");
 		} else {
-			break;
+			sem_destroy(psem1);
+		        sem_destroy(psem2);
+			exit(0);
 		}
 		while(i<rep){
 			task("log.txt", msg);
@@ -84,9 +86,8 @@ int main(int argc, char *argv[]) {
                                 err_sys("Read psem1");
                         }
                         printf("PROCESS 1(PSEM1): %d\n", sem_value);
-		//provar sem_post aqui
+
 		i = 0;
-		sem_post(psem2);
 		sem_post(psem2);
 		sem_wait(psem1);
 	}

@@ -72,7 +72,9 @@ int main(int argc, char *argv[]) {
 			scanf("%s", msg);
 			strcat(msg, "\n");
 		} else {
-			break;
+			sem_destroy(psem1);
+        		sem_destroy(psem2);
+		        exit(0);
 		}
 		while(i<rep){
 			task("log.txt", msg);
@@ -80,16 +82,16 @@ int main(int argc, char *argv[]) {
 			i++;
 		}
 		 // Read and print semaphore value
-                        result = sem_getvalue(psem1, &sem_value);
+                        result = sem_getvalue(psem2, &sem_value);
                         if (result < 0) {
-                                err_sys("Read psem1");
+                                err_sys("Read psem2");
                         }
-                        printf("PROCESS 1(PSEM1): %d\n", sem_value);
+                        printf("PROCESS 2(PSEM2): %d\n", sem_value);
 
 		//provar sem_post aqui
 		i = 0;
 		sem_post(psem1);
-		sem_wait(psem2);
+		//sem_wait(psem2);
 	}
 	sem_destroy(psem1);
 	sem_destroy(psem2);
