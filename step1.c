@@ -8,6 +8,7 @@
 #include<errno.h>
 #include<pthread.h>
 sem_t *psem1;
+sem_t *psem2;
 void err_sys(const char* x)
 {
     perror(x);
@@ -38,9 +39,13 @@ int task (char filename[], char msg[]) {
 }
 
 int main(int argc, char *argv[]) {
-	psem1 = sem_open(name, O_CREAT, 1, 1);
+	psem1 = sem_open("/sem1", O_CREAT, 1, 1);
         if (psem1 == SEM_FAILED) {
                 err_sys("Open psem1");
+        }
+        psem2 = sem_open("/sem2", O_CREAT, 1, 0);
+        if (psem2 == SEM_FAILED) {
+                err_sys("Open psem2");
         }
 	int result;
         int sem_value;
@@ -58,7 +63,7 @@ int main(int argc, char *argv[]) {
 	char msg[255];
 
 	while (1) {
-		sem_wait(psem1);
+		//sem_wait(psem1);
 		printf("P1: Enter the number of iterations (0-9): \n");
 		scanf("%d", &rep);
 		if(rep!=0){
@@ -71,25 +76,30 @@ int main(int argc, char *argv[]) {
 		while(i<rep){
 			task("log.txt", msg);
 			printf("done\n");
-			 // Read and print semaphore value
-        		result = sem_getvalue(psem1, &sem_value);
-        		if (result < 0) {
-        			err_sys("Read psem1");
-        		}
-        		printf("PROCESS 1(PSEM1): %d\n", sem_value);
 			i++;
 		}
+		 // Read and print semaphore value
+                        result = sem_getvalue(psem1, &sem_value);
+                        if (result < 0) {
+                                err_sys("Read psem1");
+                        }
+                        printf("PROCESS 1(PSEM1): %d\n", sem_value);
 		//provar sem_post aqui
 		i = 0;
-		sem_post(psem1);
+		sem_post(psem2);
+		sem_post(psem2);
+		sem_wait(psem1);
 	}
 
 
         // Read and print semaphore value
-        result = sem_getvalue(psem1, &sem_value);
+        /*result = sem_getvalue(psem1, &sem_value);
         if (result < 0) {
         err_sys("Read psem1");
         }
         printf("PROCESS 1(PSEM1): %d\n", sem_value);
 	return(0);
+	*/
+	sem_destroy(psem1);
+	sem_destroy(psem2);
 }
