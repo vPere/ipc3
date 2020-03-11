@@ -17,15 +17,7 @@ void err_sys(const char* x)
 
 const char *name = "semafor";
 
-/* void startSem() {
-        // Open psem1
 
-        sem_t *psem1 = (sem_t*) sem_open(name, O_CREAT);
-        if (psem1 == SEM_FAILED) {
-                err_sys("Open psem1");
-        }
-
-} */
 int task (char filename[], char msg[]) {
         FILE *toWrite;
         toWrite = fopen(filename, "a");
@@ -39,7 +31,7 @@ int task (char filename[], char msg[]) {
 }
 
 int main(int argc, char *argv[]) {
-	psem1 = sem_open("/sem1", O_CREAT, 1);
+	psem1 = sem_open("/sem1", O_CREAT, 0);
         if (psem1 == SEM_FAILED) {
                 err_sys("Open psem1");
         }
@@ -58,13 +50,25 @@ int main(int argc, char *argv[]) {
 		sem_wait(psem2);
 		sem_value--;
 	}
+	
 
 	int i = 0;
 	int rep = 1;
 	char msg[255];
+        FILE *fc;
+        fc = fopen("log.txt", "w");
+        fclose(fc);
 
 	while (1) {
 		sem_wait(psem2);
+                sem_getvalue(psem1, &sem_value);
+                if (sem_value==1){
+                        sem_unlink("/sem2");
+                        sem_unlink("/sem1");
+                        exit(0);
+			//sem_post(psem2);
+                }
+
 		printf("P2: Enter the number of iterations (0-9): \n");
 		scanf("%d", &rep);
 		if(rep!=0){
@@ -96,13 +100,4 @@ int main(int argc, char *argv[]) {
 	sem_destroy(psem1);
 	sem_destroy(psem2);
 	exit(0);
-
-        // Read and print semaphore value
-        /*result = sem_getvalue(psem1, &sem_value);
-        if (result < 0) {
-        err_sys("Read psem1");
-        }
-        printf("PROCESS 1(PSEM1): %d\n", sem_value);
-	return(0);
-	*/
 }
